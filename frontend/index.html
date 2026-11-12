@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact Us</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #172033;
+      background: #edf4ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 48px 20px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(ellipse at 12% 12%, rgba(147, 197, 253, .48), transparent 34%),
+        radial-gradient(ellipse at 88% 90%, rgba(196, 181, 253, .38), transparent 32%),
+        #edf4ff;
+    }
+
+    .contact-card {
+      width: min(100%, 900px);
+      display: grid;
+      grid-template-columns: .85fr 1.15fr;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .8);
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(37, 68, 120, .16);
+    }
+
+    .intro {
+      padding: 56px 42px;
+      color: #fff;
+      background: linear-gradient(145deg, #1d4ed8, #4338ca 78%, #5145cd);
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: #bfdbfe;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .intro h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 44px);
+      line-height: 1.12;
+      letter-spacing: -.04em;
+    }
+
+    .intro-copy {
+      margin: 18px 0 0;
+      color: #e0e7ff;
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    .form-panel { padding: 52px 48px; }
+
+    .form-heading {
+      margin: 0 0 8px;
+      font-size: 22px;
+      letter-spacing: -.02em;
+    }
+
+    .form-copy {
+      margin: 0 0 28px;
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    label {
+      display: block;
+      margin: 0 0 8px;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input, textarea {
+      width: 100%;
+      margin: 0 0 20px;
+      padding: 13px 14px;
+      border: 1px solid #dbe3ef;
+      border-radius: 10px;
+      outline: none;
+      background: #f8fafc;
+      color: #172033;
+      font: inherit;
+      font-size: 14px;
+      transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #4f6bed;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(79, 107, 237, .12);
+    }
+
+    textarea { min-height: 132px; resize: vertical; }
+
+    button {
+      width: 100%;
+      padding: 14px 18px;
+      border: 0;
+      border-radius: 10px;
+      background: linear-gradient(100deg, #2563eb, #4f46e5);
+      box-shadow: 0 8px 18px rgba(59, 88, 220, .2);
+      color: #fff;
+      cursor: pointer;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      transition: transform .2s, box-shadow .2s, opacity .2s;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 11px 22px rgba(59, 88, 220, .28);
+    }
+
+    button:focus-visible {
+      outline: 3px solid #a5b4fc;
+      outline-offset: 3px;
+    }
+
+    button:disabled { cursor: wait; opacity: .65; }
+
+    #status {
+      min-height: 22px;
+      margin: 14px 0 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 24px 16px; }
+      .contact-card { grid-template-columns: 1fr; border-radius: 18px; }
+      .intro { padding: 34px 28px; }
+      .intro h1 { font-size: 36px; }
+      .intro-copy { margin-top: 12px; }
+      .form-panel { padding: 32px 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="contact-card">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">We'd love to hear from you</p>
+      <h1 id="page-title">Let's talk.</h1>
+      <p class="intro-copy">Have a question or an idea? Send us a message and we'll get back to you as soon as we can.</p>
+    </section>
+
+    <section class="form-panel" aria-labelledby="form-title">
+      <h2 class="form-heading" id="form-title">Send us a message</h2>
+      <p class="form-copy">Fill in the details below and we'll be in touch.</p>
+      <form id="contactForm">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" autocomplete="name" placeholder="Your name" required>
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="5" placeholder="How can we help?" required></textarea>
+        <button type="submit" id="btn">Send message</button>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script>
+    const API_URL = "https://YOUR_API_ID.execute-api.YOUR_REGION.amazonaws.com/contact";
+
+    document.getElementById("contactForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById("btn");
+      const status = document.getElementById("status");
+      btn.disabled = true;
+      status.textContent = "Sending...";
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            message: document.getElementById("message").value,
+          }),
+        });
+        const data = await res.json();
+        status.textContent = data.message;
+        status.style.color = res.ok ? "green" : "red";
+        if (res.ok) e.target.reset();
+      } catch (err) {
+        status.textContent = "Something went wrong. Please try again.";
+        status.style.color = "red";
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
