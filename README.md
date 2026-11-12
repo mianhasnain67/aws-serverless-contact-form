@@ -1,9 +1,9 @@
 # Serverless Contact Form on AWS
 
-A production-style contact form built with a fully serverless architecture on AWS. Visitors submit a form on a static website hosted on **S3**; the request flows through **API Gateway** to a **Lambda** function that stores the message in **DynamoDB**, sends a confirmation email to the visitor through **SES**, and alerts the site owner through **SNS**. Permissions are managed with **IAM** and logs go to **CloudWatch**.
+A contact form built with a fully serverless architecture on AWS. Visitors submit a form on a static website hosted on **S3**; the request flows through **API Gateway** to a **Lambda** function that stores the message in **DynamoDB**, sends a confirmation email to the visitor through **SES**, and alerts the site owner through **SNS**. Permissions are managed with **IAM** and logs go to **CloudWatch**.
 
 ![AWS](https://img.shields.io/badge/AWS-Serverless-FF9900?logo=amazonaws&logoColor=white)
-![Python](https://img.shields.io/badge/Lambda-Python%203.12-3776AB?logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Lambda-Python%203-3776AB?logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
@@ -29,7 +29,7 @@ A production-style contact form built with a fully serverless architecture on AW
 |---|---|
 | **Amazon S3** | Hosts the static website (single `index.html`) |
 | **Amazon API Gateway (HTTP API)** | Public `POST /contact` endpoint, CORS, throttling |
-| **AWS Lambda (Python 3.12)** | Validates input and orchestrates DynamoDB, SES and SNS |
+| **AWS Lambda (Python)** | Validates input and orchestrates DynamoDB, SES and SNS |
 | **Amazon DynamoDB** | Stores every submission (on-demand capacity) |
 | **Amazon SES** | Sends a confirmation email to the visitor |
 | **Amazon SNS** | Sends an alert email to the site owner |
@@ -45,7 +45,7 @@ flowchart LR
     V([Visitor]) -->|HTTP| S3[S3 Static Website]
     S3 -->|form submit, POST /contact| APIGW[API Gateway<br/>HTTP API + CORS]
     APIGW --> L[Lambda<br/>Python]
-    L -->|PutItem| DDB[(DynamoDB<br/>ContactSubmissions)]
+    L -->|PutItem| DDB[(DynamoDB<br/>contactsubmissions)]
     L -->|SendEmail| SES[Amazon SES]
     L -->|Publish| SNS[Amazon SNS<br/>contact-alerts]
     SES -.->|confirmation email| V
@@ -104,7 +104,7 @@ All resources must be created in the **same AWS region** (this project used `us-
 
 ### 1. DynamoDB table
 
-- Table name: `ContactSubmissions` (names are **case-sensitive**; use the exact same name in the Lambda environment variable and IAM policy)
+- Table name: `contactsubmissions` (names are **case-sensitive**; use the exact same name in the Lambda environment variable and IAM policy)
 - Partition key: `id` (String), no sort key
 - Capacity mode: On-demand
 
@@ -123,12 +123,12 @@ All resources must be created in the **same AWS region** (this project used `us-
 
 ### 4. Lambda function
 
-1. Create a function (Runtime **Python 3.12**) and paste `backend/lambda_function.py`, then **Deploy**.
+1. Create a function (Runtime **Python 3.x**) and paste `backend/lambda_function.py`, then **Deploy**.
 2. Add environment variables:
 
    | Key | Value |
    |---|---|
-   | `TABLE_NAME` | `ContactSubmissions` |
+   | `TABLE_NAME` | `contactsubmissions` |
    | `SNS_TOPIC_ARN` | ARN of the `contact-alerts` topic |
    | `SENDER_EMAIL` | SES verified sender address |
 
@@ -204,8 +204,8 @@ curl -X POST "https://YOUR_API_ID.execute-api.YOUR_REGION.amazonaws.com/contact"
 ## Security
 
 - **Least privilege:** the Lambda role only allows `dynamodb:PutItem` on one table, `ses:SendEmail`, and `sns:Publish` on one topic.
-- **CORS:** restrict Allow-Origin to the site's real origin in production.
-- **Throttling:** set API Gateway stage throttling (for example rate 5, burst 10) to limit abuse.
+- **CORS:** `*` is used while testing; restrict Allow-Origin to the site's real origin in production.
+- **Throttling:** not configured yet; recommended on the API Gateway stage (for example rate 5, burst 10) to limit abuse.
 - **Spam:** consider reCAPTCHA or AWS WAF for public sites.
 - **Secrets:** never commit AWS access keys. The API URL is public by design; this repository contains no credentials.
 - **S3:** only public website files belong in the bucket.
